@@ -7,7 +7,7 @@ api = Api(app)
 items = []
 
 
-class Student(Resource):
+class Item(Resource):
     def get(self, name):
         item = [item for item in items if item["name"] == name]
         if item:
@@ -26,7 +26,7 @@ class ItemList(Resource):
         return {"items": items}
 
 
-api.add_resource(Student, "/student/<string:name>")
+api.add_resource(Item, "/student/<string:name>")
 api.add_resource(ItemList, "/items")
 
 app.run(debug=True)
