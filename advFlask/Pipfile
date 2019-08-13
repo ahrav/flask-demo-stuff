@@ -13,6 +13,7 @@ flask = "*"
 flask-jwt-extended = "*"
 flask-sqlalchemy = "*"
 flask-restful = "*"
+marshmallow = "==3.0.0rc9"
 
 [requires]
 python_version = "3.7"
