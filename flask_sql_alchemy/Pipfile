@@ -4,12 +4,18 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pep8 = "*"
+flake8 = "*"
+black = "*"
 
 [packages]
-flask-jwt = "*"
 flask = "*"
-flask-restful = "*"
+flask-jwt-extended = "*"
 flask-sqlalchemy = "*"
+flask-restful = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
