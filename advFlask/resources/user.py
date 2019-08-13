@@ -1,3 +1,4 @@
+import traceback
 from flask import request, make_response, render_template
 from flask_jwt_extended import (
     create_access_token,
@@ -13,6 +14,7 @@ from werkzeug.security import safe_str_cmp
 from blacklist import BLACKLIST
 from models.user import UserModel
 from schemas.user import UserSchema
+from libs.mailgun import MailgunException
 
 user_schema = UserSchema()
 
@@ -25,15 +27,23 @@ class UserRegister(Resource):
         if UserModel.find_by_username(user.username):
             return {"message": "A user with that username already exists"}, 400
 
-        user.save_to_db()
-        user.send_confirmation_email()
+        try:
+            user.save_to_db()
+            user.send_confirmation_email()
 
-        return (
-            {
-                "message": "User created successfully. Please check email for confirmation link"
-            },
-            201,
-        )
+            return (
+                {
+                    "message": "User created successfully. Please check email for confirmation link"
+                },
+                201,
+            )
+        except MailgunException as e:
+            user.delete_from_db()
+            return {"message": str(e)}, 500
+
+        except:
+            traceback.print_exc()
+            return {"message": "Failed to create user"}, 500
 
 
 class User(Resource):
