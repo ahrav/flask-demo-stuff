@@ -26,8 +26,14 @@ class UserRegister(Resource):
             return {"message": "A user with that username already exists"}, 400
 
         user.save_to_db()
+        user.send_confirmation_email()
 
-        return {"message": "User created successfully."}, 201
+        return (
+            {
+                "message": "User created successfully. Please check email for confirmation link"
+            },
+            201,
+        )
 
 
 class User(Resource):
@@ -50,7 +56,7 @@ class User(Resource):
 class UserLogin(Resource):
     @classmethod
     def post(cls):
-        user_data = user_schema.load(request.get_json())
+        user_data = user_schema.load(request.get_json(), partial=("email",))
 
         user = UserModel.find_by_username(user_data.username)
         if user and safe_str_cmp(user.password, user_data.password):

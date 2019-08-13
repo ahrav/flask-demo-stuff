@@ -17,6 +17,7 @@ flask-restful = "*"
 marshmallow = "==3.0.0rc9"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"
