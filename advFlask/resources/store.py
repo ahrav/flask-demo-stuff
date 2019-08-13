@@ -19,7 +19,7 @@ class Store(Resource):
         try:
             store.save_to_db()
         except:
-            return {"message": "an error occured"}, 500
+            return {"message": "an error occurred"}, 500
 
             return store.json(), 201
 
@@ -33,6 +33,7 @@ class Store(Resource):
 
 
 class StoreList(Resource):
-    def get(self):
-        return {"stores": [store.json() for store in StoreModel.find.all()]}
+    @classmethod
+    def get(cls):
+        return {"stores": [store.json() for store in StoreModel.find_all()]}
 
