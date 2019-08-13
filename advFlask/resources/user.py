@@ -8,7 +8,6 @@ from flask_jwt_extended import (
     jwt_required,
 )
 from flask_restful import Resource
-from marshmallow import ValidationError
 from werkzeug.security import safe_str_cmp
 
 from blacklist import BLACKLIST
@@ -23,7 +22,7 @@ class UserRegister(Resource):
     def post(cls):
         user = user_schema.load(request.get_json())
 
-        if UserModel.find_by_username(user["username"]):
+        if UserModel.find_by_username(user.username):
             return {"message": "A user with that username already exists"}, 400
 
         user.save_to_db()
@@ -54,12 +53,24 @@ class UserLogin(Resource):
         user_data = user_schema.load(request.get_json())
 
         user = UserModel.find_by_username(user_data.username)
-        if user and safe_str_cmp(user.password, user_data["password"]):
-            access_token = create_access_token(identity=user.id, fresh=True)
-            refresh_token = create_refresh_token(user.id)
+        if user and safe_str_cmp(user.password, user_data.password):
+            if user.activated:
+                access_token = create_access_token(
+                    identity=user.id, fresh=True
+                )
+                refresh_token = create_refresh_token(user.id)
+                return (
+                    {
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
+                    },
+                    200,
+                )
             return (
-                {"access_token": access_token, "refresh_token": refresh_token},
-                200,
+                {
+                    "message": f"You have not confirmed email, please check your email {user.username}"
+                },
+                400,
             )
         return {"message": "invalid credentials"}, 401
 
@@ -71,6 +82,17 @@ class UserLogout(Resource):
         jti = get_raw_jwt()["jti"]
         BLACKLIST.add(jti)
         return {"message": "Successfully logged out"}, 200
+
+
+class UserConfirm(Resource):
+    @classmethod
+    def get(cls, user_id: int):
+        user = UserModel.find_by_id(user_id)
+        if not user:
+            return {"message": "User not found"}, 404
+        user.activated = True
+        user.save_to_db()
+        return {"message": "user confirmed"}, 200
 
 
 class RefreshToken(Resource):

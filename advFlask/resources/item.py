@@ -1,7 +1,6 @@
 from flask import request
 from flask_jwt_extended import fresh_jwt_required, jwt_required
 from flask_restful import Resource
-from marshmallow import ValidationError
 
 from models.item import ItemModel
 from schemas.item import ItemSchema
