@@ -3,7 +3,8 @@ from typing import Dict, List, Union
 from db import db
 
 
-itemJSON = Dict[str, Union[int, str, float]]
+ItemJSON = Dict[str, Union[int, str, float]]
+
 
 class ItemModel(db.Model):
     __tablename__ = "items"
@@ -29,11 +30,11 @@ class ItemModel(db.Model):
         }
 
     @classmethod
-    def find_by_name(cls, name: str):
+    def find_by_name(cls, name: str) -> "ItemModel":
         return cls.query.filter_by(name=name).first()
 
     @classmethod
-    def find_all(cls) -> List:
+    def find_all(cls) -> List["ItemModel"]:
         return cls.query.all()
 
     def save_to_db(self):
