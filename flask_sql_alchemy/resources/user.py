@@ -32,7 +32,7 @@ class User(Resource):
         return user.json()
 
     @classmethod
-    def deleted(cls, user_id):
+    def delete(cls, user_id):
         user = UserModel.find_by_id(user_id)
         if not user:
             return {"message": "User not found"}, 404
