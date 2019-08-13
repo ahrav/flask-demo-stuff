@@ -7,7 +7,7 @@ from flask_jwt_extended import (
     jwt_refresh_token_required,
     get_jwt_identity,
     jwt_required,
-    get_raw_jwt
+    get_raw_jwt,
 )
 
 from blacklist import BLACKLIST
@@ -36,14 +36,14 @@ class UserRegister(Resource):
 
 class User(Resource):
     @classmethod
-    def get(cls, user_id):
+    def get(cls, user_id: int):
         user = UserModel.find_by_id(user_id)
         if not user:
             return {"message": "User not found"}, 404
         return user.json()
 
     @classmethod
-    def delete(cls, user_id):
+    def delete(cls, user_id: int):
         user = UserModel.find_by_id(user_id)
         if not user:
             return {"message": "User not found"}, 404
@@ -70,9 +70,9 @@ class UserLogin(Resource):
 class UserLogout(Resource):
     @jwt_required
     def post(self):
-        jti = get_raw_jwt()['jti']
+        jti = get_raw_jwt()["jti"]
         BLACKLIST.add(jti)
-        return {'message': 'Successfully logged out'}, 200
+        return {"message": "Successfully logged out"}, 200
 
 
 class RefreshToken(Resource):
