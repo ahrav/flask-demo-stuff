@@ -18,6 +18,7 @@ marshmallow = "==3.0.0rc9"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 requests = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
