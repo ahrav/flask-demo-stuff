@@ -1,12 +1,9 @@
 from flask import request, url_for
 from requests import Response
-from typing import Dict, Union
 
 from db import db
-from models.confirmation import ConfirmationModel
 from libs.mailgun import Mailgun
-
-UserJSON = Dict[str, Union[int, str]]
+from models.confirmation import ConfirmationModel
 
 
 class UserModel(db.Model):
@@ -49,7 +46,6 @@ class UserModel(db.Model):
         )
         subject = "Registration Confirmation"
         text = f"Please click link to confirm registration {link}"
-        html = f"""<html>Please click link to confirm
-                    registration <a href="{link}">{link}</a></html>"""
+        html = f"<html>Please click the link to confirm your registration: <a href={link}>link</a></html>"
 
         return Mailgun.send_email([self.email], subject, text, html)

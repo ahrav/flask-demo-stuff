@@ -12,7 +12,7 @@ from schemas.confirmation import ConfirmationSchema
 confirmation_schema = ConfirmationSchema()
 
 
-class ConfirmationResource(Resource):
+class Confirmation(Resource):
     @classmethod
     def get(cls, confirmation_id: str):
         confirmation = ConfirmationModel.find_by_id(confirmation_id)
@@ -31,7 +31,7 @@ class ConfirmationResource(Resource):
         headers = {"Content-Type": "text/html"}
         return make_response(
             render_template(
-                "confirmation_path.html", email=confirmation.user.email
+                "confirmation_page.html", email=confirmation.user.email
             ),
             200,
             headers,

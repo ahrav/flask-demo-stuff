@@ -1,5 +1,5 @@
 import traceback
-from flask import request, make_response, render_template
+from flask import request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -13,6 +13,7 @@ from werkzeug.security import safe_str_cmp
 
 from blacklist import BLACKLIST
 from models.user import UserModel
+from models.confirmation import ConfirmationModel
 from schemas.user import UserSchema
 from libs.mailgun import MailgunException
 
@@ -29,6 +30,8 @@ class UserRegister(Resource):
 
         try:
             user.save_to_db()
+            confirmation = ConfirmationModel(user.id)
+            confirmation.save_to_db()
             user.send_confirmation_email()
 
             return (
@@ -43,6 +46,7 @@ class UserRegister(Resource):
 
         except:
             traceback.print_exc()
+            user.delete_from_db()
             return {"message": "Failed to create user"}, 500
 
 
@@ -70,7 +74,8 @@ class UserLogin(Resource):
 
         user = UserModel.find_by_username(user_data.username)
         if user and safe_str_cmp(user.password, user_data.password):
-            if user.activated:
+            confirmation = user.most_recent_confirmation
+            if confirmation and confirmation.confirmed:
                 access_token = create_access_token(
                     identity=user.id, fresh=True
                 )
@@ -98,22 +103,6 @@ class UserLogout(Resource):
         jti = get_raw_jwt()["jti"]
         BLACKLIST.add(jti)
         return {"message": "Successfully logged out"}, 200
-
-
-class UserConfirm(Resource):
-    @classmethod
-    def get(cls, user_id: int):
-        user = UserModel.find_by_id(user_id)
-        if not user:
-            return {"message": "User not found"}, 404
-        user.activated = True
-        user.save_to_db()
-        headers = {"Content-Type": "text/html"}
-        return make_response(
-            render_template("confirmation_page.html", email=user.username),
-            200,
-            headers,
-        )
 
 
 class RefreshToken(Resource):
