@@ -1,7 +1,10 @@
 import os
 
+import stripe
 from db import db
 from typing import List
+
+CURRENCY = "usd"
 
 
 class ItemsInOrder(db.Model):
@@ -24,6 +27,23 @@ class OrderModel(db.Model):
 
     items = db.relationship("ItemsInOrder", back_populates="order")
 
+    @property
+    def description(self):
+        item_counts = [f"{i.quantity}x {i.item.name}" for i in self.items]
+        return ",".join(item_counts)
+
+    @property
+    def amount(self):
+        return int(
+            sum(
+                [
+                    item_data.item.price * item_data.quantity
+                    for item_data in self.items
+                ]
+            )
+            * 100
+        )
+
     @classmethod
     def find_all(cls) -> List["OrderModel"]:
         return cls.query.all()
@@ -31,6 +51,16 @@ class OrderModel(db.Model):
     @classmethod
     def find_by_id(cls, _id: int) -> "OrderModel":
         return cls.query.filter_by(id=_id).first()
+
+    def charge_with_stripe(self, token: str) -> stripe.Charge:
+        stripe.api_key = os.getenv("STRIPE_API_KEY")
+
+        return stripe.Charge.create(
+            amount=self.amount,
+            currency=CURRENCY,
+            description=self.description,
+            source=token,
+        )
 
     def set_status(self, new_status: str) -> None:
         """
