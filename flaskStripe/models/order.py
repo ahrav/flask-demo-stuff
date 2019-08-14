@@ -4,13 +4,25 @@ from db import db
 from typing import List
 
 
-class OrderModel(db.Models):
-    __table_name__ = "orders"
+class ItemsInOrder(db.Model):
+    __tablename__ = "items_in_order"
 
     id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(80), nullable=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("items.id"))
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"))
+    quantity = db.Column(db.Integer)
 
-    items = db.relationship("ItemModel", lazy="dynamic")
+    item = db.relationship("ItemModel")
+    order = db.relationship("OrderModel", back_populates="items")
+
+
+class OrderModel(db.Model):
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(20), nullable=False)
+
+    items = db.relationship("ItemsInOrder", back_populates="order")
 
     @classmethod
     def find_all(cls) -> List["OrderModel"]:
@@ -21,6 +33,10 @@ class OrderModel(db.Models):
         return cls.query.filter_by(id=_id).first()
 
     def set_status(self, new_status: str) -> None:
+        """
+        Sets the new status for the order and saves to the database—so that an order is never not committed to disk.
+        :param new_status: the new status for this order to be saved.
+        """
         self.status = new_status
         self.save_to_db()
 
@@ -28,6 +44,6 @@ class OrderModel(db.Models):
         db.session.add(self)
         db.session.commit()
 
-    def delete_to_db(self) -> None:
+    def delete_from_db(self) -> None:
         db.session.delete(self)
         db.session.commit()
