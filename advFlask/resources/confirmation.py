@@ -1,8 +1,10 @@
+import traceback
 from time import time
 
 from flask import make_response, render_template
 from flask_restful import Resource
 
+from libs.mailgun import MailgunException
 from models.confirmation import ConfirmationModel
 from models.user import UserModel
 from schemas.confirmation import ConfirmationSchema
@@ -55,5 +57,24 @@ class ConfirmationByUser(Resource):
             200,
         )
 
-    def post(cls):
-        pass
+    def post(cls, user_id: int):
+        user = UserModel.find_by_id(user_id)
+        if not user:
+            return {"message": "user not found"}, 404
+
+        try:
+            confirmation = user.most_recent_confirmation
+            if confirmation:
+                if confirmation.confirmed:
+                    return {"message": "already confirmed"}, 400
+                confirmation.force_to_expire()
+
+            new_confirmation = ConfirmationModel(user_id)
+            new_confirmation.save_to_db()
+            user.send_confirmation_email()
+            return {"message": "resent success"}, 201
+        except MailgunException as e:
+            return {"message": str(e)}, 500
+        except:
+            traceback.print_exc()
+            return {"message": "resend message failed"}, 500
