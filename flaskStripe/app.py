@@ -16,6 +16,7 @@ from resources.user import (
 )
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
+from resources.order import Order
 
 app = Flask(__name__)
 load_dotenv(".env")
@@ -52,6 +53,7 @@ api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserLogin, "/login")
 api.add_resource(TokenRefresh, "/refresh")
 api.add_resource(UserLogout, "/logout")
+api.add_resource(Order, "/order")
 
 if __name__ == "__main__":
     db.init_app(app)

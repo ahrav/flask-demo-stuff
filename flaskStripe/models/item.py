@@ -10,12 +10,18 @@ class ItemModel(db.Model):
     name = db.Column(db.String(80), nullable=False, unique=True)
     price = db.Column(db.Float(precision=2), nullable=False)
 
-    store_id = db.Column(db.Integer, db.ForeignKey("stores.id"), nullable=False)
+    store_id = db.Column(
+        db.Integer, db.ForeignKey("stores.id"), nullable=False
+    )
     store = db.relationship("StoreModel")
 
     @classmethod
     def find_by_name(cls, name: str) -> "ItemModel":
         return cls.query.filter_by(name=name).first()
+
+    @classmethod
+    def find_by_id(cls, _id: int) -> "ItemModel":
+        return cls.query.filter_by(id=_id).first()
 
     @classmethod
     def find_all(cls) -> List["ItemModel"]:

@@ -4,13 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-Flask = "*"
-Flask-JWT-Extended = "*"
-Flask-RESTful = "*"
-Flask-SQLAlchemy = "*"
+flask = "*"
+flask-jwt-extended = "*"
+flask-sqlalchemy = "*"
+flask-restful = "*"
+marshmallow = "==3.0.0rc9"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
-marshmallow = "==3.0.0b12"
+requests = "*"
+python-dotenv = "*"
+flask-uploads = "*"
 
 [dev-packages]
 pep8 = "*"
