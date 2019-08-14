@@ -11,19 +11,25 @@ from schemas.confirmation import ConfirmationSchema
 
 confirmation_schema = ConfirmationSchema()
 
+NOT_FOUND = "Confirmation not found"
+EXPIRED = "Confirmation link is expired"
+ALREADY_CONFIRMED = "Registration already has been confirmed"
+RESEND_FAIL = "Internal server error failed to resend confirmation email"
+RESEND_SUCCESSFUL = "Email confirmation successfully sent"
+
 
 class Confirmation(Resource):
     @classmethod
     def get(cls, confirmation_id: str):
         confirmation = ConfirmationModel.find_by_id(confirmation_id)
         if not confirmation:
-            return {"message": "Not found"}, 404
+            return {"message": NOT_FOUND}, 404
 
         if confirmation.expired:
-            return {"message": "Expired"}, 400
+            return {"message": EXPIRED}, 400
 
         if confirmation.confirmed:
-            return {"message": "Already confirmed"}, 400
+            return {"message": ALREADY_CONFIRMED}, 400
 
         confirmation.confirmed = True
         confirmation.save_to_db()
@@ -66,15 +72,15 @@ class ConfirmationByUser(Resource):
             confirmation = user.most_recent_confirmation
             if confirmation:
                 if confirmation.confirmed:
-                    return {"message": "already confirmed"}, 400
+                    return {"message": ALREADY_CONFIRMED}, 400
                 confirmation.force_to_expire()
 
             new_confirmation = ConfirmationModel(user_id)
             new_confirmation.save_to_db()
             user.send_confirmation_email()
-            return {"message": "resent success"}, 201
+            return {"message": RESEND_SUCCESSFUL}, 201
         except MailgunException as e:
             return {"message": str(e)}, 500
         except:
             traceback.print_exc()
-            return {"message": "resend message failed"}, 500
+            return {"message": RESEND_FAIL}, 500

@@ -1,0 +1,5 @@
+{
+  "mailgun_fail_load_api_key": "Failed to load Mailgun API key",
+  "mailgun_fail_load_domain": "Failed to load Mailgun Domain",
+  "mailgun_error_sending_email": "Error in sending confirmation email, user registration failed"
+}
