@@ -3,6 +3,7 @@ from requests import Response
 from typing import Dict, Union
 
 from db import db
+from models.confirmation import ConfirmationModel
 from libs.mailgun import Mailgun
 
 UserJSON = Dict[str, Union[int, str]]
@@ -15,7 +16,16 @@ class UserModel(db.Model):
     username = db.Column(db.String(80), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), nullable=False, unique=True)
-    activated = db.Column(db.Boolean, default=False)
+
+    confirmation = db.relationship(
+        "ConfirmationModel", lazy="dynamic", cascade="all, delete-orphan"
+    )
+
+    @property
+    def most_recent_confirmation(self) -> "ConfirmationModel":
+        return self.confirmation.order_by(
+            db.desc(ConfirmationModel.expire_at)
+        ).first()
 
     def save_to_db(self):
         db.session.add(self)
@@ -34,7 +44,9 @@ class UserModel(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     def send_confirmation_email(self) -> Response:
-        link = request.url_root[:-1] + url_for("userconfirm", user_id=self.id)
+        link = request.url_root[:-1] + url_for(
+            "confirmation", confirmation_id=self.most_recent_confirmation.id
+        )
         subject = "Registration Confirmation"
         text = f"Please click link to confirm registration {link}"
         html = f"""<html>Please click link to confirm
