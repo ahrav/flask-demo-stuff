@@ -32,7 +32,7 @@ class UserRegister(Resource):
             user.save_to_db()
             confirmation = ConfirmationModel(user.id)
             confirmation.save_to_db()
-            user.send_confirmation_email()
+            # user.send_confirmation_email()
 
             return (
                 {
