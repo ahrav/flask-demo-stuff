@@ -35,5 +35,6 @@
   "image_deleted": "Image '{}' deleted",
   "image_delete_failed": "Internal server error, failed to delete image",
   "avatar_uploaded": "Avatar '{}' uploaded",
-  "avatar_delete_failed": "Internal server error failed to delete image"
+  "avatar_delete_failed": "Internal server error failed to delete image",
+  "avatar_not_found": "Avatar not found"
 }
