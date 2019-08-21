@@ -12,6 +12,13 @@ black = "*"
 flask = "*"
 uwsgi = "*"
 flask-restful = "*"
+flask-sqlalchemy = "*"
+flask-jwt-extended = "*"
+marshmallow = "*"
+flask-marshmallow = "*"
+python-dotenv = "*"
+marshmallow-sqlalchemy = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

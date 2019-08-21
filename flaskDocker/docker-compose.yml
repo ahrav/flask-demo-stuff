@@ -9,6 +9,8 @@ services:
       - ./flask:/app
     environment:
       - APP_NAME=MyFlaskApp
+    env_file:
+      - ./flask/.env
 
   nginx:
     build:
