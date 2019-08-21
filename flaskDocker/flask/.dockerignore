@@ -1,0 +1,4 @@
+.env
+.pyc
+Pipfile
+Pipfile.lock
